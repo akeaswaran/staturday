@@ -95,7 +95,10 @@ function _generateDividerBlock() {
     }
 }
 
-module.exports = (games) => {
+module.exports = (games, liveOnly) => {
+    if (liveOnly == null) {
+        liveOnly = false;
+    }
     var blocks = [];
     var results = [];
     var header = {
@@ -110,7 +113,8 @@ module.exports = (games) => {
             }
         ]
     };
-    if (games.length > 0) {
+
+    if (Array.isArray(games) && games.length > 0) {
         games.sort((a, b) => {
             if (a.status.type.completed && !b.status.type.completed) {
                 return 1;
@@ -120,12 +124,15 @@ module.exports = (games) => {
                 return Math.min(a.awayTeam.rank, a.homeTeam.rank) > Math.min(b.awayTeam.rank, b.homeTeam.rank);
             }
         });
-        games.filter(item => item.status.type.completed != true && parseInt(item.status.period) >= 1).forEach((item, idx) => {
+
+        var filter = (liveOnly == true) ? games.filter(item => item.status.type.completed != true && parseInt(item.status.period) >= 1) : games;
+        filter.forEach((item, idx) => {
             if (idx < 24) {
                 results.push(_generateGameBlock(item));
                 results.push(_generateDividerBlock());
             }
         });
+
         blocks = [header].concat(results).concat([footer]);
     } else {
         results.push({
@@ -135,9 +142,9 @@ module.exports = (games) => {
 				"text": "No games live at this time."
 			}
 		})
+
         blocks = results.concat([footer]);
     }
 
-    // console.log(JSON.stringify(blocks));
     return blocks;
 }

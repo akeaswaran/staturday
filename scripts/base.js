@@ -9,6 +9,7 @@
 //
 //  Commands:
 //    hubot live - retrieves the latest scores from ESPN
+//    hubot score <team string> - retrieves the latest scores from ESPN
 //
 //  Author:
 //    Akshay Easwaran <akeaswaran@me.com>
@@ -20,10 +21,6 @@ const CfbApi = require("../utils/cfb-api")
 const EspnApi = require("../utils/espn-api")
 const generateScoreBlocks = require("../utils/scoreformat")
 const moment = require("moment")
-
-function _processGameState(gm) {
-    return `search successful for game ${gm.id}`;
-}
 
 module.exports = function(robot) {
     robot.receiveMiddleware((context, next, done) => {
@@ -70,13 +67,13 @@ module.exports = function(robot) {
         if (gameData != null && _isFreshData(gameData.last_updated)) {
             robot.logger.info(`Referring to existing data, last loaded on ${gameData.last_updated}`)
             var games = gameData.results;
-            var blocks = generateScoreBlocks(games);
+            var blocks = generateScoreBlocks(games, true);
             return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
         } else {
             robot.logger.info(`Loading new data from ESPN...`)
             EspnApi.retrieveFreshCFBGames()
             .then(games => {
-                var blocks = generateScoreBlocks(games);
+                var blocks = generateScoreBlocks(games, true);
                 robot.brain.set("most-recent",{results:games,last_updated:moment().format()})
                 return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
             })
@@ -87,42 +84,42 @@ module.exports = function(robot) {
         }
     });
 
-    // robot.hear(/\!score\s?(.*)?/i, (res) => {
-    //     // if (res.match.length < 2 || res.match[1] == null || res.match[1].length == 0) {
-    //     //     return sendSlackMessage(res, `No team provided to search for.`, null, false);
-    //     // }
-    //     var cleanedTeamName = res.match.length > 1 ? (res.match[1] != null ? res.match[1] : "").trim() : "";
-    //     EspnApi.retrieveFreshCFBGames()
-    //     .then(games => {
-    //         // robot.logger.info("games");
-    //         if (cleanedTeamName.length != 0) {
-    //             var teams = games.map((item) => item.homeTeam.location.toLowerCase()).concat(games.map(item => item.awayTeam.location.toLowerCase()));
-    //             var gameIds = games.map((item) => item.id).concat(games.map(item => item.id));
-    //             var index = teams.indexOf(cleanedTeamName.toLowerCase());
-    //             if (cleanedTeamName != -1) {
-    //                 var relevantGames = games.filter(item => item.id == gameIds[index]);
-    //                 if (relevantGames.length == 0) {
-    //                     robot.logger.error(`Can not find "${cleanedTeamName}" in action at this time.`);
-    //                     return sendSlackMessage(res, `Can not find "${cleanedTeamName}" in action at this time.`, null, false);
-    //                 } else {
-    //                     var gm = relevantGames[0];
-    //                     return sendSlackMessage(res, _processGameState(gm), null, true);
-    //                 }
-    //             } else {
-    //                 robot.logger.error(`Can not find "${cleanedTeamName}" in action at this time.`);
-    //                 return sendSlackMessage(res, `Can not find "${cleanedTeamName}" in action at this time.`, null, false);
-    //             }
-    //         } else {
-    //             var mass = "";
-    //             games.forEach(item => {
-    //                 mass += ("\n" + _processGameState(item))
-    //             });
-    //             return sendSlackMessage(res, mass, null, true);
-    //         }
-    //     })
-    //     .catch(err => {
-    //         robot.logger.error(`Error while looking for "${cleanedTeamName}": ${err}`);
-    //         return sendSlackMessage(res, `Error while looking for "${cleanedTeamName}": ${err}`, null, false);
-    //     })
-    // });
+    robot.hear(/\!score\s?(.*)?/i, (res) => {
+        var cleanedTeamName = res.match.length > 1 ? (res.match[1] != null ? res.match[1] : "").trim() : "";
+        if (cleanedTeamName.length == 0) {
+            robot.logger.error(`Did not provide a team name to search for. Please try again with a valid team name.`);
+            return sendSlackMessage(res, `Did not provide a team name to search for. Please try again with a valid team name.`, null, false);
+        } else {
+            robot.logger.info(`Loading score again`)
+            var gameData = robot.brain.get("most-recent");
+            if (gameData != null && _isFreshData(gameData.last_updated)) {
+                robot.logger.info(`Referring to existing data, last loaded on ${gameData.last_updated}`)
+                var entries = gameData.results.filter(item => (item.homeTeam.location.toLowerCase().includes(cleanedTeamName) || item.awayTeam.location.toLowerCase().includes(cleanedTeamName)));
+                if (entries.length > 0) {
+                    var blocks = generateScoreBlocks(entries);
+                    return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
+                } else {
+                    robot.logger.error(`Can not find "${cleanedTeamName}" in action at this time.`);
+                    return sendSlackMessage(res, `Can not find "${cleanedTeamName}" in action at this time.`, null, false);
+                }
+            } else {
+                EspnApi.retrieveFreshCFBGames()
+                .then(games => {
+                    robot.brain.set("most-recent",{results:games,last_updated:moment().format()})
+                    var entries = games.filter(item => (item.homeTeam.location.toLowerCase().includes(cleanedTeamName) || item.awayTeam.location.toLowerCase().includes(cleanedTeamName)));
+                    if (entries.length > 0) {
+                        var blocks = generateScoreBlocks(entries);
+                        return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
+                    } else {
+                        robot.logger.error(`Can not find "${cleanedTeamName}" in action at this time.`);
+                        return sendSlackMessage(res, `Can not find "${cleanedTeamName}" in action at this time.`, null, false);
+                    }
+                })
+                .catch(err => {
+                    robot.logger.error(`Error while looking for "${cleanedTeamName}": ${err}`);
+                    return sendSlackMessage(res, `Error while looking for "${cleanedTeamName}": ${err}`, null, false);
+                })
+            }
+        }
+    });
 };
