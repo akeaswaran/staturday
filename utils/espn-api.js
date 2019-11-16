@@ -70,6 +70,8 @@ function createESPNGame(gameEvent) {
     game.airings = gameEvent.competitions[0].airings;
     game.geoBroadcasts = gameEvent.competitions[0].geoBroadcasts;
     game.possession = (game.situation != null) ? ((game.situation.possession != null) ? ((game.situation.possession == game.awayTeam.id) ? game.awayTeam.abbreviation : game.homeTeam.abbreviation) : null) : null;
+
+    game.odds = gameEvent.competitions[0].odds;
     return game;
 }
 

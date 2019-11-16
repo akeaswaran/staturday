@@ -8,7 +8,7 @@ function _generateScoreString(gm) {
     if (parseInt(gm.status.period) >= 1) {
         return `${_generateTeamString(gm.awayTeam)} ${gm.scores.away}, ${_generateTeamString(gm.homeTeam)} ${gm.scores.home}`
     } else {
-        return `${_generateTeamString(gm.awayTeam)} @ ${_generateTeamString(gm.homeTeam)}`;
+        return `${_generateTeamString(gm.awayTeam)} (${gm.awayTeam.records.overall}) @ ${_generateTeamString(gm.homeTeam)} (${gm.homeTeam.records.overall})`;
     }
 }
 
@@ -22,7 +22,12 @@ function _generateTimeString(gm) {
 
 function _generateSituationString(gm) {
     if (parseInt(gm.status.period) < 1 || gm.situation == null || gm.status.type.completed == true || gm.situation.downDistanceText == null) {
-        return "";
+        if (gm.odds != null && gm.odds.length > 0) {
+            var line = gm.odds[0];
+            return `${line.details}${(line.overUnder != null) ? (", O/U " + line.overUnder) : ""}`
+        } else {
+            return "";
+        }
     } else {
         var ballString = (gm.possession != null) ? `${gm.possession} ball - ` : "";
         return `${ballString}${gm.situation.downDistanceText.replace(" at ", ", ")}`;
