@@ -25,7 +25,7 @@ const moment = require("moment")
 
 module.exports = function(robot) {
     robot.receiveMiddleware((context, next, done) => {
-        if (context.response.message.text != null && context.response.message.user.name != null) {
+        if (context.response.message.text != null && context.response.message.user.name != null && (context.response.message.text.includes("!live") || context.response.message.text.includes("!score"))) {
             robot.logger.info(`"${context.response.message.text}" received from @${context.response.message.user.name}`)
         }
         next(done);
