@@ -137,7 +137,9 @@ module.exports = (games, liveOnly) => {
                 results.push(_generateDividerBlock());
             }
         });
+    }
 
+    if (results.length != 0) {
         blocks = [header].concat(results).concat([footer]);
     } else {
         results.push({
