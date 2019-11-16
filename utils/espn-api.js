@@ -61,15 +61,15 @@ function createESPNGame(gameEvent) {
 
     //Game Status
     game.status = gameEvent.status;
-    game.situation = gameEvent.situation;
+    game.situation = gameEvent.competitions[0].situation;
     //Teams
     game.homeTeam = createESPNTeam(gameEvent.competitions[0].competitors[0]);
     game.awayTeam = createESPNTeam(gameEvent.competitions[0].competitors[1]);
 
     // Broadcasts
-    game.airings = gameEvent.airings;
-    game.geoBroadcasts = gameEvent.geoBroadcasts;
-
+    game.airings = gameEvent.competitions[0].airings;
+    game.geoBroadcasts = gameEvent.competitions[0].geoBroadcasts;
+    game.possession = (game.situation != null) ? ((game.situation.possession != null) ? ((game.situation.possession == game.awayTeam.id) ? game.awayTeam.abbreviation : game.homeTeam.abbreviation) : null) : null;
     return game;
 }
 

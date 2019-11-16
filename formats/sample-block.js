@@ -1,5 +1,5 @@
 module.exports = {
-	"response_type": "in_channel",
+	"type":"modal",
 	"blocks": [
 		{
 			"type": "section",
