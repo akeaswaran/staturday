@@ -96,6 +96,7 @@ function _generateDividerBlock() {
 }
 
 module.exports = (games) => {
+    var blocks = [];
     var results = [];
     var header = {
         "type" : "divider"
@@ -125,6 +126,7 @@ module.exports = (games) => {
                 results.push(_generateDividerBlock());
             }
         });
+        blocks = [header].concat(results).concat([footer]);
     } else {
         results.push({
 			"type": "section",
@@ -133,9 +135,9 @@ module.exports = (games) => {
 				"text": "No games live at this time."
 			}
 		})
-        results.push(_generateDividerBlock());
+        blocks = results.concat([footer]);
     }
-    var blocks = [header].concat(results).concat([footer]);
+
     // console.log(JSON.stringify(blocks));
     return blocks;
 }
