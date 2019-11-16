@@ -14,18 +14,18 @@ function _generateScoreString(gm) {
 
 function _generateTimeString(gm) {
     if (parseInt(gm.status.period) < 1) {
-        return `_${moment(gm.date).format('M/D h:mm a')}_`;
+        return `${moment(gm.date).format('M/D h:mm a')}`;
     } else {
-        return `_Time:_ ${gm.status.type.shortDetail.replace(" - ", " ")}`;
+        return `${gm.status.type.shortDetail.replace(" - ", " ")}`;
     }
 }
 
 function _generateSituationString(gm) {
-    if (parseInt(gm.status.period) < 1 || gm.situation == null || gm.status.type.completed == true) {
+    if (parseInt(gm.status.period) < 1 || gm.situation == null || gm.status.type.completed == true || gm.situation.downDistanceText == null) {
         return "";
     } else {
         var ballString = (gm.possession != null) ? `${gm.possession} ball - ` : "";
-        return `_Situation:_ ${ballString}${gm.situation.downDistanceText.replace(" at ", ", ")}`;
+        return `${ballString}${gm.situation.downDistanceText.replace(" at ", ", ")}`;
     }
 }
 
