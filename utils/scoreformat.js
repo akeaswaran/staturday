@@ -34,6 +34,15 @@ function _generateSituationString(gm) {
     }
 }
 
+function _generateLastPlayString(gm) {
+    if (parseInt(gm.status.period) < 1 || gm.situation == null || gm.status.type.completed == true || gm.situation.lastPlay == null) {
+        return "";
+    } else {
+        var ballString = (gm.situation.lastPlay != null && (gm.situation.lastPlay.type.text.toLowerCase() != 'timeout' && gm.situation.lastPlay.type.text.toLowerCase() != 'kickoff') && gm.situation.lastPlay.type.text.toLowerCase().includes('end of')) ? ((gm.situation.lastPlay.team.id == gm.awayTeam.id) ? `${gm.awayTeam.abbreviation} ball - ` : `${gm.homeTeam.abbreviation} ball - `) : "";
+        return `_Last Play_: ${ballString}${gm.situation.lastPlay.text}`;
+    }
+}
+
 function _findUrlForNonESPNNetwork(network) {
     if (network == "CBSSN") {
         return "https://www.cbssports.com/cbs-sports-network/";
@@ -61,11 +70,12 @@ function _generateGameBlock(gm) {
     var scoreString = _generateScoreString(gm);
     var timeString = _generateTimeString(gm);
     var situationString = _generateSituationString(gm);
+    var lastPlayString = _generateLastPlayString(gm);
     var block = {
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": `<https://www.espn.com/college-football/game/_/gameId/${gm.id}|*${scoreString}*>\n${timeString}${situationString.length > 0 ? ("\n"+situationString) : ""}`
+				"text": `<https://www.espn.com/college-football/game/_/gameId/${gm.id}|*${scoreString}*>\n${timeString}${situationString.length > 0 ? ("\n"+situationString) : ""}${lastPlayString.length > 0 ? ("\n"+lastPlayString) : ""}`
 			}
 		};
     // console.log(gm.airings);
