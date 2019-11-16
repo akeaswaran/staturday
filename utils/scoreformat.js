@@ -1,4 +1,4 @@
-const moment = require("moment")
+const moment = require("moment-timezone")
 
 function _generateTeamString(team) {
     return `${(team.rank < 26) ? ("#"+team.rank.toString() + " ") : ""}${team.location}`;
@@ -14,7 +14,7 @@ function _generateScoreString(gm) {
 
 function _generateTimeString(gm) {
     if (parseInt(gm.status.period) < 1) {
-        return `${moment(gm.date).format('M/D h:mm a')}`;
+        return `${moment(gm.date).tz('America/New_York').format('M/D h:mm a')}`;
     } else {
         return `${gm.status.type.shortDetail.replace(" - ", " ")}`;
     }

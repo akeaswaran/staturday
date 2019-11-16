@@ -3,6 +3,7 @@
 //
 //  Dependencies:
 //    "moment": "^2.24.0"
+//    "moment-timezone": "^0.5.27"
 //
 //  Configuration:
 //    HUBOT_SLACK_TOKEN
