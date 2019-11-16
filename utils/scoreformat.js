@@ -109,21 +109,32 @@ module.exports = (games) => {
             }
         ]
     };
-    games.sort((a, b) => {
-        if (a.status.type.completed && !b.status.type.completed) {
-            return 1;
-        } else if (!a.status.type.completed && b.status.type.completed) {
-            return -1;
-        } else {
-            return Math.min(a.awayTeam.rank, a.homeTeam.rank) > Math.min(b.awayTeam.rank, b.homeTeam.rank);
-        }
-    });
-    games.filter(item => item.status.type.completed != true && parseInt(item.status.period) >= 1).forEach((item, idx) => {
-        if (idx < 24) {
-            results.push(_generateGameBlock(item));
-            results.push(_generateDividerBlock());
-        }
-    });
+    if (games.length > 0) {
+        games.sort((a, b) => {
+            if (a.status.type.completed && !b.status.type.completed) {
+                return 1;
+            } else if (!a.status.type.completed && b.status.type.completed) {
+                return -1;
+            } else {
+                return Math.min(a.awayTeam.rank, a.homeTeam.rank) > Math.min(b.awayTeam.rank, b.homeTeam.rank);
+            }
+        });
+        games.filter(item => item.status.type.completed != true && parseInt(item.status.period) >= 1).forEach((item, idx) => {
+            if (idx < 24) {
+                results.push(_generateGameBlock(item));
+                results.push(_generateDividerBlock());
+            }
+        });
+    } else {
+        results.push({
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "No games live at this time."
+			}
+		})
+        results.push(_generateDividerBlock());
+    }
     var blocks = [header].concat(results).concat([footer]);
     // console.log(JSON.stringify(blocks));
     return blocks;
