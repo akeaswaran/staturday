@@ -45,7 +45,7 @@ module.exports = function(robot) {
         })
         .catch(err => {
             robot.logger.error(`Error while retrieving games from ESPN: ${err}`);
-            return sendSlackMessage(res, `Error while retrieving games from ESPN": ${err}`, null, false);
+            return sendSlackMessage(res, `Error while retrieving games from ESPN: ${err}`, null, false);
         })
     });
 
