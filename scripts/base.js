@@ -3,6 +3,7 @@ const attach = require("../formats/sample-attach");
 const CfbApi = require("../utils/cfb-api")
 const EspnApi = require("../utils/espn-api")
 const generateScoreBlocks = require("../utils/scoreformat")
+const moment = require("moment")
 
 function _processGameState(gm) {
     return `search successful for game ${gm.id}`;
@@ -25,28 +26,47 @@ module.exports = function(robot) {
         return web.chat.postMessage(res.message.room, text, options);
     };
 
-    robot.hear("\!ping", (res) => {
-        return res.send("PONG");
-    });
-
-    // robot.hear(/\!box/i, (res) => {
-    //     return sendSlackMessage(res, "georgia -100, Georgia Tech 6969", {"attachments":attach.attachments}, false);
-    // });
     //
-    // robot.hear(/\!block/i, (res) => {
+    // robot.hear(/\!box/i, (res) => {
     //     return sendSlackMessage(res, "georgia -100, Georgia Tech 6969", {"blocks":JSON.stringify(require("../formats/sample-block").blocks)},false);
     // })
 
-    robot.hear(/\!live/i, (res) => {
-        EspnApi.retrieveFreshCFBGames()
-        .then(games => {
+    function _isFreshData(timeString) {
+        if (timeString == null) {
+            return false
+        }
+        var lastUpdated = moment(timeString).toNow();
+        if (lastUpdated.includes("seconds") || lastUpdated.includes("minute")) {
+            return true
+        } else if (lastUpdated.includes("minutes")) {
+            var cleaner = lastUpdated.replace("in ","").replace(/ minutes?/i,"");
+            return parseInt(cleaner) <= 2
+        } else {
+            return false
+        }
+    }
+
+    robot.hear(/live/i, (res) => {
+        var gameData = robot.brain.get("most-recent");
+        robot.logger.info(`Loading live again`)
+        if (gameData != null && _isFreshData(gameData.last_updated)) {
+            robot.logger.info(`Referring to existing data, last loaded on ${gameData.last_updated}`)
+            var games = gameData.results;
             var blocks = generateScoreBlocks(games);
             return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
-        })
-        .catch(err => {
-            robot.logger.error(`Error while retrieving games from ESPN: ${err}`);
-            return sendSlackMessage(res, `Error while retrieving games from ESPN: ${err}`, null, false);
-        })
+        } else {
+            robot.logger.info(`Loading new data from ESPN...`)
+            EspnApi.retrieveFreshCFBGames()
+            .then(games => {
+                var blocks = generateScoreBlocks(games);
+                robot.brain.set("most-recent",{results:games,last_updated:moment().format()})
+                return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
+            })
+            .catch(err => {
+                robot.logger.error(`Error while retrieving games from ESPN: ${err}`);
+                return sendSlackMessage(res, `Error while retrieving games from ESPN: ${err}`, null, false);
+            })
+        }
     });
 
     // robot.hear(/\!score\s?(.*)?/i, (res) => {
