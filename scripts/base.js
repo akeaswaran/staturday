@@ -11,7 +11,9 @@ function _processGameState(gm) {
 
 module.exports = function(robot) {
     robot.receiveMiddleware((context, next, done) => {
-        robot.logger.info(`"${context.response.message.text}" received from @${context.response.message.user.name}`)
+        if (context.response.message.text != null && context.response.message.user.name != null) {
+            robot.logger.info(`"${context.response.message.text}" received from @${context.response.message.user.name}`)
+        }
         next(done);
     });
 
