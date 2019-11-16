@@ -38,8 +38,12 @@ function _generateLastPlayString(gm) {
     if (parseInt(gm.status.period) < 1 || gm.situation == null || gm.status.type.completed == true || gm.situation.lastPlay == null) {
         return "";
     } else {
-        var ballString = (gm.situation.lastPlay != null && (gm.situation.lastPlay.type.text.toLowerCase() != 'timeout' && gm.situation.lastPlay.type.text.toLowerCase() != 'kickoff') && gm.situation.lastPlay.type.text.toLowerCase().includes('end of')) ? ((gm.situation.lastPlay.team.id == gm.awayTeam.id) ? `${gm.awayTeam.abbreviation} ball - ` : `${gm.homeTeam.abbreviation} ball - `) : "";
-        return `_Last Play_: ${ballString}${gm.situation.lastPlay.text}`;
+        var ballString = (gm.situation.lastPlay != null && (gm.situation.lastPlay.type.text.toLowerCase() != 'timeout' && gm.situation.lastPlay.type.text.toLowerCase() != 'kickoff') && !gm.situation.lastPlay.type.text.toLowerCase().includes('end of')) ? ((gm.situation.lastPlay.team.id == gm.awayTeam.id) ? `${gm.awayTeam.abbreviation} ball - ` : `${gm.homeTeam.abbreviation} ball - `) : "";
+        if (ballString.includes(gm.possession + " ball")) {
+            return `_Last Play_: ${gm.situation.lastPlay.text}`;
+        } else {
+            return `_Last Play_: ${ballString}${gm.situation.lastPlay.text}`;
+        }
     }
 }
 
