@@ -60,7 +60,7 @@ function _generateGameBlock(gm) {
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": `*${scoreString}*\n${timeString}${situationString.length > 0 ? ("\n"+situationString) : ""}`
+				"text": `<https://www.espn.com/college-football/game/_/gameId/${gm.id}|*${scoreString}*>\n${timeString}${situationString.length > 0 ? ("\n"+situationString) : ""}`
 			}
 		};
     // console.log(gm.airings);
