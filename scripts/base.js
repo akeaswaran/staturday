@@ -1,3 +1,19 @@
+//  Description:
+//    Generates interesting college football content for display in Slack.
+//
+//  Dependencies:
+//    "moment": "^2.24.0"
+//
+//  Configuration:
+//    HUBOT_SLACK_TOKEN
+//
+//  Commands:
+//    hubot live - retrieves the latest scores from ESPN
+//
+//  Author:
+//    Akshay Easwaran <akeaswaran@me.com>
+
+
 const WebClient = require("@slack/client").WebClient;
 const attach = require("../formats/sample-attach");
 const CfbApi = require("../utils/cfb-api")
