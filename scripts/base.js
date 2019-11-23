@@ -107,7 +107,7 @@ module.exports = function(robot) {
                 EspnApi.retrieveFreshCFBGames()
                 .then(games => {
                     // robot.brain.set("most-recent",{results:games,last_updated:moment().format()})
-                    var entries = games.filter(item => (item.homeTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase()) || item.awayTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase())));
+                    var entries = games.filter(item => ((item.homeTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase()) || item.awayTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase()))) || (item.homeTeam.abbreviation.toLowerCase().includes(cleanedTeamName.toLowerCase()) || item.awayTeam.abbreviation.toLowerCase().includes(cleanedTeamName.toLowerCase())));
                     if (entries.length > 0) {
                         var blocks = generateScoreBlocks(entries);
                         return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
