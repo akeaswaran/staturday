@@ -77,7 +77,7 @@ function createESPNGame(gameEvent) {
 
 module.exports = {
     retrieveFreshCFBGames: function() {
-        return request({ uri: ESPN_URL, json: true })
+        return request({ uri: ESPN_URL, method: 'GET', json: true })
         .then(data => {
             var rawEvents = data.events;
             var games = [];
@@ -86,9 +86,6 @@ module.exports = {
                 games.push(gm);
             });
             return games;
-        })
-        // .catch(err => {
-        //     console.log("Error while refreshing ESPN data: " + JSON.stringify(err));
-        // });
+        });
     }
 };
