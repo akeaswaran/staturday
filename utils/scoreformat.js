@@ -94,15 +94,15 @@ function _generateGameBlock(gm) {
             },
             "url": option.webAiringLink
         };
-    } else if (gm.geoBroadcasts != null && gm.geoBroadcasts.count > 0) {
+    } else if (gm.geoBroadcasts != null && gm.geoBroadcasts.length > 0) {
         var option = gm.geoBroadcasts[0];
         block.accessory = {
             "type": "button",
             "text": {
                 "type": "plain_text",
-                "text": option.media.shortName
+                "text": `Watch on ${option.media.shortName}`
             },
-            "url": `Watch on ${_findUrlForNonESPNNetwork(option.media.shortName)}`
+            "url": _findUrlForNonESPNNetwork(option.media.shortName)
         };
     }
     return block;
