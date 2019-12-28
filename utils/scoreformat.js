@@ -84,26 +84,28 @@ function _generateGameBlock(gm) {
 		};
     // console.log(gm.airings);
     // console.log(gm.geoBroadcasts);
-    if (gm.airings != null && gm.airings.length > 0) {
-        var option = gm.airings[0];
-        block.accessory = {
-            "type": "button",
-            "text": {
-                "type": "plain_text",
-                "text": `Watch on ${option.network_displayName}`
-            },
-            "url": option.webAiringLink
-        };
-    } else if (gm.geoBroadcasts != null && gm.geoBroadcasts.length > 0) {
-        var option = gm.geoBroadcasts[0];
-        block.accessory = {
-            "type": "button",
-            "text": {
-                "type": "plain_text",
-                "text": `Watch on ${option.media.shortName}`
-            },
-            "url": _findUrlForNonESPNNetwork(option.media.shortName)
-        };
+    if (gm.status.type.completed == false) {
+        if (gm.airings != null && gm.airings.length > 0) {
+            var option = gm.airings[0];
+            block.accessory = {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": `Watch on ${option.network_displayName}`
+                },
+                "url": option.webAiringLink
+            };
+        } else if (gm.geoBroadcasts != null && gm.geoBroadcasts.length > 0) {
+            var option = gm.geoBroadcasts[0];
+            block.accessory = {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": `Watch on ${option.media.shortName}`
+                },
+                "url": _findUrlForNonESPNNetwork(option.media.shortName)
+            };
+        }
     }
     return block;
 }
