@@ -84,7 +84,7 @@ function _generateGameBlock(gm) {
 		};
     // console.log(gm.airings);
     // console.log(gm.geoBroadcasts);
-    if (gm.status.type.completed == false) {
+    if (gm.status.type.completed == false && parseInt(gm.status.period) >= 1) {
         if (gm.airings != null && gm.airings.length > 0) {
             var option = gm.airings[0];
             block.accessory = {
