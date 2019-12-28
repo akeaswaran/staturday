@@ -77,7 +77,7 @@ function createESPNGame(gameEvent) {
 
 module.exports = {
     retrieveFreshCFBGames: function() {
-        return request({ uri: `${ESPNURL}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
+        return request({ uri: `${ESPN_URL}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
         .then(data => {
             var rawEvents = data.events;
             var games = [];
