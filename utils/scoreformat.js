@@ -275,10 +275,8 @@ module.exports = {
 
             var filter = (liveOnly == true) ? games.filter(item => item.status.type.completed != true && parseInt(item.status.period) >= 1) : games;
             filter.forEach((item, idx) => {
-                if (idx < 24) {
-                    results.push(_generateMatchBlock(item));
-                    results.push(_generateDividerBlock());
-                }
+                results.push(_generateMatchBlock(item));
+                results.push(_generateDividerBlock());
             });
         }
 
