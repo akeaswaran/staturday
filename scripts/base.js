@@ -20,7 +20,7 @@ const WebClient = require("@slack/client").WebClient;
 const attach = require("../formats/sample-attach");
 const CfbApi = require("../utils/cfb-api")
 const EspnApi = require("../utils/espn-api")
-const generateScoreBlocks = require("../utils/scoreformat")
+const ScoreFormatter = require("../utils/scoreformat")
 const moment = require("moment")
 
 module.exports = function(robot) {
@@ -42,11 +42,6 @@ module.exports = function(robot) {
         return web.chat.postMessage(res.message.room, text, options);
     };
 
-    //
-    // robot.hear(/\!box/i, (res) => {
-    //     return sendSlackMessage(res, "georgia -100, Georgia Tech 6969", {"blocks":JSON.stringify(require("../formats/sample-block").blocks)},false);
-    // })
-
     function _isFreshData(timeString) {
         if (timeString == null) {
             return false
@@ -62,11 +57,11 @@ module.exports = function(robot) {
         }
     }
 
-    robot.hear(/\!live/i, (res) => {
+    robot.hear(/\!football live/i, (res) => {
         robot.logger.info(`Loading new data from ESPN...`)
         EspnApi.retrieveFreshCFBGames()
         .then(games => {
-            var blocks = generateScoreBlocks(games, true);
+            var blocks = ScoreFormatter.generateCFBScoreBlocks(games, true);
             return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
         })
         .catch(err => {
@@ -75,7 +70,7 @@ module.exports = function(robot) {
         });
     });
 
-    robot.hear(/\!score\s?(.*)?/i, (res) => {
+    robot.hear(/\!football score\s?(.*)?/i, (res) => {
         var cleanedTeamName = res.match.length > 1 ? (res.match[1] != null ? res.match[1] : "").trim() : "";
         if (cleanedTeamName.length == 0) {
             robot.logger.error(`Did not provide a team name to search for. Please try again with a valid team name.`);
@@ -85,7 +80,44 @@ module.exports = function(robot) {
             .then(games => {
                 var entries = games.filter(item => ((item.homeTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase()) || item.awayTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase()))) || (item.homeTeam.abbreviation.toLowerCase().includes(cleanedTeamName.toLowerCase()) || item.awayTeam.abbreviation.toLowerCase().includes(cleanedTeamName.toLowerCase())));
                 if (entries.length > 0) {
-                    var blocks = generateScoreBlocks(entries);
+                    var blocks = ScoreFormatter.generateCFBScoreBlocks(entries);
+                    return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
+                } else {
+                    robot.logger.error(`Can not find "${cleanedTeamName}" in action at this time.`);
+                    return sendSlackMessage(res, `Can not find "${cleanedTeamName}" in action at this time.`, null, false);
+                }
+            })
+            .catch(err => {
+                robot.logger.error(`Error while looking for "${cleanedTeamName}": ${err}`);
+                return sendSlackMessage(res, `Error while looking for "${cleanedTeamName}": ${err}`, null, false);
+            })
+        }
+    });
+
+    robot.hear(/\!soccer live/i, (res) => {
+        robot.logger.info(`Loading new MLS data from ESPN...`)
+        EspnApi.retrieveFreshMLSMatches()
+        .then(games => {
+            var blocks = ScoreFormatter.generateSoccerMatchBlocks(games, true);
+            return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
+        })
+        .catch(err => {
+            robot.logger.error(`Error while retrieving games from ESPN: ${err}`);
+            return sendSlackMessage(res, `Error while retrieving games from ESPN: ${err}`, null, false);
+        });
+    });
+
+    robot.hear(/\!soccer score\s?(.*)?/i, (res) => {
+        var cleanedTeamName = res.match.length > 1 ? (res.match[1] != null ? res.match[1] : "").trim() : "";
+        if (cleanedTeamName.length == 0) {
+            robot.logger.error(`Did not provide a team name to search for. Please try again with a valid team name.`);
+            return sendSlackMessage(res, `Did not provide a team name to search for. Please try again with a valid team name.`, null, false);
+        } else {
+            EspnApi.retrieveFreshMLSMatches()
+            .then(games => {
+                var entries = games.filter(item => ((item.homeTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase()) || item.awayTeam.location.toLowerCase().includes(cleanedTeamName.toLowerCase()))) || (item.homeTeam.abbreviation.toLowerCase().includes(cleanedTeamName.toLowerCase()) || item.awayTeam.abbreviation.toLowerCase().includes(cleanedTeamName.toLowerCase())));
+                if (entries.length > 0) {
+                    var blocks = ScoreFormatter.generateSoccerMatchBlocks(entries);
                     return sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
                 } else {
                     robot.logger.error(`Can not find "${cleanedTeamName}" in action at this time.`);

@@ -1,5 +1,6 @@
 const request = require("request-promise-native");
-const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true&groups=80';
+const ESPN_CFB_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true&groups=80';
+const ESPN_MLS_URL = 'http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true';
 
 function createESPNTeam(competitorDict) {
     var team = {};
@@ -9,6 +10,7 @@ function createESPNTeam(competitorDict) {
     team.abbreviation = competitorDict.team.abbreviation;
     team.displayName = competitorDict.team.displayName;
     team.color = competitorDict.team.color;
+    team.alternateColor = competitorDict.team.alternateColor;
     team.logoUrl = competitorDict.team.logo;
     team.links = {};
     if (competitorDict.team.links && competitorDict.team.links.length > 0) {
@@ -18,7 +20,7 @@ function createESPNTeam(competitorDict) {
         }
     }
     team.conferenceId = competitorDict.team.conferenceId;
-    team.rank = parseInt(competitorDict.curatedRank.current);
+    team.rank = parseInt((competitorDict.curatedRank && competitorDict.curatedRank.current) ? competitorDict.curatedRank.current : "99");
     team.records = {};
     if (competitorDict.records && competitorDict.records.length > 0) {
         if (competitorDict.records.length == 3) {
@@ -34,6 +36,7 @@ function createESPNTeam(competitorDict) {
             team.records.overall = competitorDict.records[0].summary;
         }
     }
+    team.form = competitorDict.form;
 
     return team;
 }
@@ -50,6 +53,7 @@ function createESPNGame(gameEvent) {
     game.venue.name = gameEvent.competitions[0].venue.fullName;
     game.venue.city = gameEvent.competitions[0].venue.address.city;
     game.venue.state = gameEvent.competitions[0].venue.address.state;
+    game.venue.country = gameEvent.competitions[0].venue.address.country;
     if (gameEvent.competitions[0].notes && gameEvent.competitions[0].notes.length > 0) {
         game.headline = gameEvent.competitions[0].notes[0].headline;
     } else {
@@ -77,7 +81,19 @@ function createESPNGame(gameEvent) {
 
 module.exports = {
     retrieveFreshCFBGames: function() {
-        return request({ uri: `${ESPN_URL}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
+        return request({ uri: `${ESPN_CFB_URL}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
+        .then(data => {
+            var rawEvents = data.events;
+            var games = [];
+            rawEvents.forEach((item) => {
+                var gm = createESPNGame(item);
+                games.push(gm);
+            });
+            return games;
+        });
+    },
+    retrieveFreshMLSMatches: function() {
+        return request({ uri: `${ESPN_MLS_URL}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
         .then(data => {
             var rawEvents = data.events;
             var games = [];

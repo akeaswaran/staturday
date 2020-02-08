@@ -1,11 +1,11 @@
 Staturday
 ---
 
-A Slack app for college football scores and stats.
+A Slack app for sports scores and stats.
 
 Built originally for use at _[From the Rumble Seat](https://fromtherumbleseat.com)_.
 
-Data provided by [ESPN](https://espn.com) and [CollegeFootballData.com](https://collegefootballdata.com).
+Data provided by [ESPN](https://espn.com) and [CollegeFootballData.com](https://collegefootballdata.com) where needed.
 
 ## Installation/Deployment
 
