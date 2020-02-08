@@ -4,6 +4,7 @@ const ESPN_MLS_URL = 'http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/
 
 let leagueMapping = {
     "mls" : "usa.1",
+    "usl" : "usa.usl.1",
 
     "epl" : "eng.1",
     "premier league" : "eng.1",
