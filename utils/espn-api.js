@@ -2,6 +2,30 @@ const request = require("request-promise-native");
 const ESPN_CFB_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true&groups=80';
 const ESPN_MLS_URL = 'http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true';
 
+let leagueMapping = {
+    "mls" : "usa.1",
+
+    "epl" : "eng.1",
+    "premier league" : "eng.1",
+    "english premier league" : "eng.1",
+
+    "bundesliga" : "ger.1",
+
+    "ligue 1" : "fra.1",
+    "french ligue 1" : "fra.1",
+
+    "la liga" : "esp.1",
+    "spanish primera división" : "esp.1",
+
+    "italian serie a" : "ita.1",
+    "serie a" : "ita.1"
+}
+
+function generateESPNSoccerUrl(league) {
+    var lgMapped = leagueMapping[league.toLowerCase()];
+    return `http://site.api.espn.com/apis/site/v2/sports/soccer/${lgMapped}/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true`;
+}
+
 function createESPNTeam(competitorDict) {
     var team = {};
     team.id = competitorDict.team.id;
@@ -93,7 +117,19 @@ module.exports = {
         });
     },
     retrieveFreshMLSMatches: function() {
-        return request({ uri: `${ESPN_MLS_URL}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
+        return request({ uri: `${generateESPNSoccerUrl("MLS")}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
+        .then(data => {
+            var rawEvents = data.events;
+            var games = [];
+            rawEvents.forEach((item) => {
+                var gm = createESPNGame(item);
+                games.push(gm);
+            });
+            return games;
+        });
+    },
+    retrieveFreshSoccerMatches: function(league) {
+        return request({ uri: `${generateESPNSoccerUrl(league)}&${Date.now()}`, method: 'GET', json: true, headers: { "User-Agent" : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:71.0) Gecko/20100101 Firefox/71.0"} })
         .then(data => {
             var rawEvents = data.events;
             var games = [];
