@@ -69,7 +69,8 @@ let leagueMapping = {
 }
 
 function generateESPNSoccerUrl(league) {
-    var lgMapped = leagueMapping[league.toLowerCase()];
+    var cleanedLeague = league.replace(/['"’]/g,"").toLowerCase()
+    var lgMapped = leagueMapping[cleanedLeague];
     return `http://site.api.espn.com/apis/site/v2/sports/soccer/${lgMapped}/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true`;
 }
 
