@@ -19,7 +19,8 @@ let leagueMapping = {
     "spanish primera división" : "esp.1",
 
     "italian serie a" : "ita.1",
-    "serie a" : "ita.1"
+    "serie a" : "ita.1",
+    "ccl" : "CONCACAF.CHAMPIONS"
 }
 
 function generateESPNSoccerUrl(league) {
