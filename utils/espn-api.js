@@ -5,10 +5,18 @@ const ESPN_MLS_URL = 'http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/
 let leagueMapping = {
     "mls" : "usa.1",
     "usl" : "usa.usl.1",
+    "usoc" : "USA.OPEN",
+    "open cup" : "USA.OPEN",
+    "nwsl" : "USA.NWSL",
 
     "epl" : "eng.1",
     "premier league" : "eng.1",
     "english premier league" : "eng.1",
+    "championship" : "eng.2",
+    "english championship" : "eng.2",
+    "fa cup" : "ENG.FA",
+    "fa wsl" : "eng.w.1",
+    "wsl" : "eng.w.1",
 
     "bundesliga" : "ger.1",
 
@@ -20,7 +28,44 @@ let leagueMapping = {
 
     "italian serie a" : "ita.1",
     "serie a" : "ita.1",
-    "ccl" : "CONCACAF.CHAMPIONS"
+
+    "ccl" : "CONCACAF.CHAMPIONS",
+    "concacaf nations league" : "CONCACAF.NATIONS.LEAGUE",
+    "gold cup" : "CONCACAF.GOLD",
+
+    "ucl" : "UEFA.CHAMPIONS",
+    "champions league" : "UEFA.CHAMPIONS",
+    "uel" : "UEFA.EUROPA",
+    "europa league" : "UEFA.EUROPA",
+    "europa" : "UEFA.EUROPA",
+    "euros" : "UEFA.EURO",
+    "euro" : "UEFA.EURO",
+    "uefa nations league" : "UEFA.NATIONS",
+    "womens champions league" : "UEFA.WCHAMPIONS",
+
+    "isl" : "IND.1",
+    "indian super league" : "IND.1",
+
+    "ncaam" : "USA.NCAA.M.1",
+    "ncaaw" : "USA.NCAA.W.1",
+
+    "world cup" : "FIFA.WORLD",
+    "womens world cup" : "FIFA.WWC",
+    "wwc" : "FIFA.WWC",
+    "uefa wcq" : "FIFA.WORLDQ.UEFA",
+    "concacaf wcq" : "FIFA.WORLDQ.CONCACAF",
+    "afc wcq" : "FIFA.WORLDQ.AFC",
+    "conmebol wcq" : "FIFA.WORLDQ.CONMEBOL",
+    "ofc wcq" : "FIFA.WORLDQ.OFC",
+    "caf wcq" : "FIFA.WORLDQ.CAF",
+
+    "mens olympics" : "FIFA.OLYMPICS",
+    "womens olympics" : "FIFA.W.OLYMPICS",
+
+    "mnt" : "FIFA.FRIENDLY",
+    "friendlies" : "FIFA.FRIENDLY",
+    "wnt" : "FIFA.FRIENDLY.W",
+    "womens friendlies" : "FIFA.FRIENDLY.W"
 }
 
 function generateESPNSoccerUrl(league) {
