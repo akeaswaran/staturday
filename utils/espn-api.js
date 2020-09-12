@@ -1,6 +1,6 @@
 const request = require("request-promise-native");
 const ESPN_CFB_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true&groups=80';
-const ESPN_MLS_URL = 'http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true';
+//const ESPN_MLS_URL = 'http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard?lang=en&region=us&calendartype=blacklist&limit=300&showAirings=true';
 
 let leagueMapping = {
     "mls" : "usa.1",
@@ -122,10 +122,10 @@ function createESPNGame(gameEvent) {
     game.date = gameEvent.date;
     game.attendance = gameEvent.competitions[0].attendance;
     game.venue = {};
-    game.venue.name = gameEvent.competitions[0].venue.fullName;
-    game.venue.city = gameEvent.competitions[0].venue.address.city;
-    game.venue.state = gameEvent.competitions[0].venue.address.state;
-    game.venue.country = gameEvent.competitions[0].venue.address.country;
+    game.venue.name = (gameEvent.competitions[0].venue != null) ? gameEvent.competitions[0].venue.fullName : null;
+    game.venue.city = (gameEvent.competitions[0].venue != null && gameEvent.competitions[0].venue.address != null) ? gameEvent.competitions[0].venue.address.city : null;
+    game.venue.state = (gameEvent.competitions[0].venue != null && gameEvent.competitions[0].venue.address != null) ? gameEvent.competitions[0].venue.address.state : null;
+    game.venue.country = (gameEvent.competitions[0].venue != null && gameEvent.competitions[0].venue.address != null) ? gameEvent.competitions[0].venue.address.country : null;
     if (gameEvent.competitions[0].notes && gameEvent.competitions[0].notes.length > 0) {
         game.headline = gameEvent.competitions[0].notes[0].headline;
     } else {
