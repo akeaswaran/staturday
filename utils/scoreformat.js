@@ -101,11 +101,12 @@ function _generateGameBlock(gm) {
     var timeString = _generateTimeString(gm);
     var situationString = _generateSituationString(gm);
     var lastPlayString = _generateLastPlayString(gm);
+    var spiceLevelString = gm.spiceLabel != null ? "" : `[Spice Level: ${gm.spiceLabel}]`;
     var block = {
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": `<https://www.espn.com/college-football/game/_/gameId/${gm.id}|*${scoreString}*>\n${timeString}${situationString.length > 0 ? ("\n"+situationString) : ""}${lastPlayString.length > 0 ? ("\n"+lastPlayString) : ""}`
+				"text": `<https://www.espn.com/college-football/game/_/gameId/${gm.id}|*${scoreString}*> ${spiceLevelString.length > 0 ? spiceLevelString : ""}\n${timeString}${situationString.length > 0 ? ("\n"+situationString) : ""}${lastPlayString.length > 0 ? ("\n"+lastPlayString) : ""}`
 			}
 		};
     // console.log(gm.airings);
