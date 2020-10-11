@@ -19,8 +19,8 @@
 
 
 const WebClient = require("@slack/client").WebClient;
-const attach = require("../formats/sample-attach");
-const CfbApi = require("../utils/cfb-api")
+// const attach = require("../formats/sample-attach");
+// const CfbApi = require("../utils/cfb-api")
 const EspnApi = require("../utils/espn-api")
 const WhiparoundAPI = require("../utils/whiparound-api")
 const ScoreFormatter = require("../utils/scoreformat")
@@ -30,8 +30,11 @@ const Queue = require('promise-queue');
 var maxConcurrent = 1;
 var maxQueue = Infinity;
 var queue = new Queue(maxConcurrent, maxQueue);
+Queue.prototype.clear = () => {
+    this.queue = [];
+};
 
-var cronSched = process.env.CRON_SCHEDULE != null ? process.env.CRON_SCHEDULE : "*/1 * * * *";
+var cronSched = process.env.CRON_SCHEDULE != null ? process.env.CRON_SCHEDULE : "*/6 * * * *";
 var targetedChannels = [];
 
 module.exports = function(robot) {
@@ -53,61 +56,70 @@ module.exports = function(robot) {
         return web.chat.postMessage(res.message.room, text, options);
     };
 
+    function sendRoomMessage(room, text, options) {
+        if (options == null) {
+            options = {};
+        }
+        return web.chat.postMessage(room, text, options);
+    };
+
     var whiparoundURL = process.env.WHIPAROUND_URL;
     if (whiparoundURL != null) {
-        robot.logger.info(`Booting up cron job for spicy games`);
-        WhiparoundAPI.startCronJob(cronSched, robot.logger, (blocks) => {
-            logger.info("Clearing rest of notifications queue before sending new updates...");
+        robot.logger.info(`Booting up cron job for spicy games, connecting to Whiparound URL: ${whiparoundURL}`);
+        WhiparoundAPI.startCronJob(whiparoundURL, cronSched, robot.logger, (blocks) => {
+            robot.logger.info("Clearing rest of notifications queue before sending new updates...");
             queue.clear();
             targetedChannels.forEach(chan => {
                 queue.add(function () {
                     robot.logger.info(`Sending new blocks to targeted channel: ${chan}`);
-                    sendSlackMessage(res, "", {blocks:JSON.stringify(blocks)}, true);
+                    sendRoomMessage(chan, "", {blocks:JSON.stringify(blocks)});
                 }).then((result) => {
-                    logger.info(`Sent notifications to channel ${chan}`);
+                    robot.logger.info(`Sent notifications to channel ${chan}`);
                 }).catch((err) => {
-                    logger.error(`Error while sending notifications to channel ${chan}: ` + err);
+                    robot.logger.error(`Error while sending notifications to channel ${chan}: ` + err);
                 });
             })
         });
     
         robot.hear(/\!whiparound subscribe/i, res => {
-            var channel = res.message.item.channel;
+            var channel = res.message.rawMessage.channel;
             if (channel != null) {
                 var index = targetedChannels.indexOf(channel)
-                if (index != -1) { 
-                    robot.logger.info(`Subscribing channel ${channel} to spicy updates`);
+                if (index == -1) { 
+                    robot.logger.info(`Subscribing channel (${channel}) to spicy updates`);
                     targetedChannels.push(channel);
-                    robot.logger.info(`Subscribed channel ${channel} to spicy updates`);
-                    return sendSlackMessage(res, `Subscribed channel ${channel} to spicy updates`, null, false); 
+                    robot.logger.info(`Subscribed channel (${channel}) to spicy updates`);
+                    return sendSlackMessage(res, `Subscribed this channel (${channel}) to spicy updates`, null, false); 
                 } else {
                     robot.logger.info(`Channel ${channel} was already subscribed to spicy updates`);
-                    return sendSlackMessage(res, `Channel ${channel} was already subscribed to spicy updates`, null, false); 
+                    return sendSlackMessage(res, `This channel (${channel}) was already subscribed to spicy updates`, null, false); 
                 }
             } else {
-                robot.logger.info(`Could not subscribe channel to spicy updates because it was null`);
-                return sendSlackMessage(res, `Error: Could not subscribe channel to spicy updates because it was null`, null, false); 
+                robot.logger.info(`Could not subscribe this channel to spicy updates because it was null`);
+                return sendSlackMessage(res, `Error: Could not subscribe this channel to spicy updates because it was null`, null, false); 
             }
         });
     
         robot.hear(/\!whiparound unsubscribe/i, res => {
-            var channel = res.message.item.channel;
+            var channel = res.message.rawMessage.channel;
             if (channel != null) {
                 var index = targetedChannels.indexOf(channel)
                 if (index > -1) { 
-                    robot.logger.info(`Unsubscribing channel ${channel} from spicy updates`);
+                    robot.logger.info(`Unsubscribing channel (${channel}) from spicy updates`);
                     targetedChannels.splice(index, 1) 
-                    robot.logger.info(`Unsubscribed channel ${channel} from spicy updates`);
-                    return sendSlackMessage(res, `Unsubscribed channel ${channel} from spicy updates`, null, false); 
+                    robot.logger.info(`Unsubscribed channel (${channel}) from spicy updates`);
+                    return sendSlackMessage(res, `Unsubscribed this channel (${channel}) from spicy updates`, null, false); 
                 } else {
                     robot.logger.info(`Channel ${channel} was never subscribed to spicy updates`);
-                    return sendSlackMessage(res, `Channel ${channel} was never subscribed to spicy updates`, null, false); 
+                    return sendSlackMessage(res, `This channel ${channel} was never subscribed to spicy updates`, null, false); 
                 }
             } else {
-                robot.logger.info(`Could not unsubscribe channel to spicy updates because it was null`);
-                return sendSlackMessage(res, `Error: Could not unsubscribe channel to spicy updates because it was null`, null, false); 
+                robot.logger.info(`Could not unsubscribe this channel to spicy updates because it was null`);
+                return sendSlackMessage(res, `Error: Could not unsubscribe this channel to spicy updates because it was null`, null, false); 
             }
         });
+    } else {
+        robot.logger.info(`Not doing anything with Whiparound, no URL configured`);
     }
 
     function _isFreshData(timeString) {

@@ -175,5 +175,6 @@ module.exports = {
             });
             return games;
         });
-    }
+    },
+    formatESPNJson: createESPNGame
 };
