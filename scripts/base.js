@@ -69,16 +69,20 @@ module.exports = function(robot) {
         WhiparoundAPI.startCronJob(whiparoundURL, cronSched, robot.logger, (blocks) => {
             robot.logger.info("Clearing rest of notifications queue before sending new updates...");
             queue.clear();
-            targetedChannels.forEach(chan => {
-                queue.add(function () {
-                    robot.logger.info(`Sending new blocks to targeted channel: ${chan}`);
-                    sendRoomMessage(chan, "", {blocks:JSON.stringify(blocks)});
-                }).then((result) => {
-                    robot.logger.info(`Sent notifications to channel ${chan}`);
-                }).catch((err) => {
-                    robot.logger.error(`Error while sending notifications to channel ${chan}: ` + err);
-                });
-            })
+            if (blocks.length > 0) {
+                targetedChannels.forEach(chan => {
+                    queue.add(function () {
+                        robot.logger.info(`Sending new blocks to targeted channel: ${chan}`);
+                        sendRoomMessage(chan, "", {blocks:JSON.stringify(blocks)});
+                    }).then((result) => {
+                        robot.logger.info(`Sent notifications to channel ${chan}`);
+                    }).catch((err) => {
+                        robot.logger.error(`Error while sending notifications to channel ${chan}: ` + err);
+                    });
+                })
+            } else {
+                robot.logger.info("No updates to send");
+            }
         });
     
         robot.hear(/\!whiparound subscribe/i, res => {

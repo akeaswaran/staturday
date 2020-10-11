@@ -25,8 +25,20 @@ module.exports = {
             logger.info("---- Checking Whiparound Diffs ----");
             retrieveDiffs(url)
             .then(games => {
-                var blocks = ScoreFormatter.generateCFBScoreBlocks(games, true);
-                callback(blocks);
+                if (games.length > 0) {
+                    var header = {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*Latest Spicy Games:*"
+                        }
+                    };
+                    var blocks = ScoreFormatter.generateCFBScoreBlocks(games, true);
+                    blocks.unshift(header);
+                    callback(blocks);
+                } else {
+                    callback([]);
+                }
             }).catch(err => {
                 logger.info(`Error while loading Whiparound diffs: ${err}`);
             });
