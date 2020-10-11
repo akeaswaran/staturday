@@ -110,7 +110,7 @@ module.exports = function(robot) {
                 var index = targetedChannels.indexOf(channel)
                 if (index > -1) { 
                     robot.logger.info(`Unsubscribing channel (${channel}) from spicy updates`);
-                    targetedChannels.splice(index, 1) 
+                    targetedChannels.splice(index, 1);
                     robot.logger.info(`Unsubscribed channel (${channel}) from spicy updates`);
                     return sendSlackMessage(res, `Unsubscribed this channel (${channel}) from spicy updates`, null, false); 
                 } else {
