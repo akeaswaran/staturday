@@ -101,7 +101,7 @@ function _generateGameBlock(gm) {
     var timeString = _generateTimeString(gm);
     var situationString = _generateSituationString(gm);
     var lastPlayString = _generateLastPlayString(gm);
-    var spiceLevelString = gm.spiceLabel != null ? "" : `[Spice Level: ${gm.spiceLabel}]`;
+    var spiceLevelString = "";//gm.spiceLevel != null ? "" : `[Spice Level: ${gm.spiceLevel}]`;
     var block = {
 			"type": "section",
 			"text": {
